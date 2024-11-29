@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>phantom_touch_control</name>
+  <version>1.0.0</version>
+  <description>ROS package for interfacing with 3D Systems Touch haptic devices.</description>
+  <maintainer email="ermano.arruda@gmail.com">Ermano Arruda</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>libboost-dev</depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>phantom_touch_msgs</depend>
+  <depend>eigen</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
