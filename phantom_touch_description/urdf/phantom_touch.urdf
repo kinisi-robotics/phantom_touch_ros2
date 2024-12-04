@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<robot name="phantom_touch" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="phantom_omni" xmlns:xacro="http://www.ros.org/wiki/xacro">
 	
 	<!-- Materials -->
 	<material name="metal_seamed">
@@ -13,12 +13,11 @@
 	</material>
 	
 	<!-- Links -->
-  <link name="base" />
-  <link name="base_bottom" >
+  <link name="base" >
     <visual>
 			<origin xyz="0 -0.02 0" />
       <geometry>
-				<mesh filename="package://phantom_touch_description/meshes/base.stl" />
+				<mesh filename="package://omni_description/meshes/base.stl" />
       </geometry>
       <material name="metal_seamed"/>
     </visual>
@@ -27,7 +26,7 @@
     <visual>
 			<origin xyz="0 0 0.036" rpy="-1.5707 0 0"/>
       <geometry>
-				<mesh filename="package://phantom_touch_description/meshes/torso.stl" />
+				<mesh filename="package://omni_description/meshes/torso.stl" />
       </geometry>
       <material name="blue"/>
     </visual>
@@ -36,7 +35,7 @@
 		<visual>
 			<origin xyz="0.0075 0 0" rpy="0 0 0"/>
       <geometry>
-				<mesh filename="package://phantom_touch_description/meshes/upper_arm.stl" />
+				<mesh filename="package://omni_description/meshes/upper_arm.stl" />
       </geometry>
       <material name="metal_seamed" />
     </visual>
@@ -45,7 +44,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="1.5707 0 0"/>
       <geometry>
-				<mesh filename="package://phantom_touch_description/meshes/lower_arm.stl" />
+				<mesh filename="package://omni_description/meshes/lower_arm.stl" />
       </geometry>
       <material name="metal_seamed" />
     </visual>
@@ -54,7 +53,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="3.14159 0 0"/>
       <geometry>
-				<mesh filename="package://phantom_touch_description/meshes/wrist.stl" />
+				<mesh filename="package://omni_description/meshes/wrist.stl" />
       </geometry>
       <material name="metal_seamed" />
     </visual>
@@ -63,7 +62,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="-1.5707 0 0"/>
       <geometry>
-				<mesh filename="package://phantom_touch_description/meshes/tip.stl" />
+				<mesh filename="package://omni_description/meshes/tip.stl" />
       </geometry>
       <material name="metal_seamed" />
     </visual>
@@ -72,23 +71,15 @@
     <visual>
 			<origin xyz="0 -0.033 0" rpy="1.5707 1.5707 0"/>
       <geometry>
-				<mesh filename="package://phantom_touch_description/meshes/pen.stl" />
+				<mesh filename="package://omni_description/meshes/pen.stl" />
       </geometry>
       <material name="blue" />
     </visual>
   </link>
-
-  <link name="stylus_point" >
-  </link>
   
 	<!-- joints -->
-  <joint name="connector_joint" type="fixed" >
-    <parent link="base" />
-    <child link="base_bottom" />
-    <origin xyz="0 0 0.0" rpy="0 0 -1.5707" />
-  </joint>
   <joint name="waist" type="revolute" >
-    <parent link="base_bottom" />
+    <parent link="base" />
     <child link="torso" />
     <origin xyz="0 0 0.09" rpy="0 0 0" />
     <axis xyz="0 0 -1" />
@@ -99,7 +90,7 @@
     <child link="upper_arm" />
     <origin xyz="-0.0075 0 0.035" rpy="0 0 0" />
     <axis xyz="1 0 0" />
-    <limit lower="0" upper="1.75" velocity="100" effort="5" />
+    <limit lower="-0.028" upper="1.787" velocity="100" effort="5" />
   </joint>
   <joint name="elbow" type="revolute" >
     <parent link="upper_arm" />
@@ -107,34 +98,28 @@
     <origin xyz="0.0075 .134 0" rpy="-1.5 0 0" />
     <axis xyz="1 0 0" />
 		<!-- upper="1.25" -->
-    <limit lower="-0.81" upper="1.25" velocity="100" effort="5" /> 
+    <limit lower="-0.83" upper="1.19" velocity="100" effort="5" /> 
   </joint>
   <joint name="yaw" type="revolute" >
     <parent link="lower_arm" />
     <child link="wrist" />
     <origin xyz="0 0.08 0" />
     <axis xyz="0 -1 0" />
-    <limit lower="3.92" upper="8.83" velocity="100" effort="5" />
+    <limit lower="-2.55" upper="2.57" velocity="100" effort="5" />
   </joint>
   <joint name="pitch" type="revolute" >
     <parent link="wrist" />
     <child link="tip" />
     <origin xyz="0 0.0525 0" rpy="1.5 0 0" />
     <axis xyz="1 0 0" />
-    <limit lower="-0.5" upper="1.75" velocity="100" effort="5" />
+    <limit lower="-1.431" upper="1.081" velocity="100" effort="5" />
   </joint>
   <joint name="roll" type="revolute" >
     <parent link="tip" />
     <child link="stylus" />
-    <origin xyz="0 -0.023 0" rpy="-3.14159 3.14159 0" />
+    <origin xyz="0 -0.023 0" rpy="3.14159 3.14159 0" />
     <axis xyz="0 1 0" />
-    <limit lower="-2.58" upper="2.58" velocity="100" effort="5" />
-  </joint>
-
-  <joint name="stylus_point_joint" type="fixed" >
-    <parent link="stylus" />
-    <child link="stylus_point" />
-    <origin xyz="0 0.0 0" rpy="1.5707 3.14159 0" />
+    <limit lower="-2.617" upper="2.613" velocity="100" effort="5" />
   </joint>
 </robot>
 
