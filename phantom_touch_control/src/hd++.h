@@ -241,7 +241,7 @@ public:
                     return HD_CALLBACK_CONTINUE;
                 } else {
                     printf("Callback returned false. Removing from scheduler list...\n");
-                    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
                     // remove op from scheduler list once it has ended (the callback returned false)
                     op->scheduler->operations_.remove_if([&op](const auto& other) { return op->handle = other.handle; });
                     return HD_CALLBACK_DONE;
