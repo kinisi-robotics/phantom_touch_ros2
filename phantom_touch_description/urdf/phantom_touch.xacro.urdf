@@ -81,6 +81,9 @@
 
     <link name="${prefix}stylus_point" >
     </link>
+
+    <link name="${prefix}stylus_tip" >
+    </link>
     
     <!-- joints -->
     <joint name="${prefix}connector_joint" type="fixed" >
@@ -135,7 +138,13 @@
     <joint name="${prefix}stylus_point_joint" type="fixed" >
       <parent link="${prefix}stylus" />
       <child link="${prefix}stylus_point" />
-      <origin xyz="0 0.0 0" rpy="1.5707 3.14159 0" />
+      <origin xyz="0 0.0 0" rpy="1.5707 3.14159 0.0" />
+    </joint>
+
+    <joint name="${prefix}stylus_tip_joint" type="fixed" >
+      <parent link="${prefix}stylus_point" />
+      <child link="${prefix}stylus_tip" />
+      <origin xyz="0 0.0 0" rpy="0.0 0.0 1.5707" />
     </joint>
 
   </xacro:macro>
