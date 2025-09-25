@@ -125,7 +125,6 @@ void Device::make_current() const
 
 void Device::set_force_enabled(bool enable)
 {
-    make_current();
 
     if (enable)
         hdEnable(HD_FORCE_OUTPUT);
