@@ -62,6 +62,8 @@ Device::Device(const std::string& name)
     else
         handle_ = hdInitDevice(name.c_str());
 
+    hdEnable(HD_FORCE_OUTPUT);
+
     error_check();
 }
 
@@ -129,6 +131,18 @@ void Device::set_force_enabled(bool enable)
         hdEnable(HD_FORCE_OUTPUT);
     else
         hdDisable(HD_FORCE_OUTPUT);
+
+        
+    error_check();
+}
+
+void Device::set_force(const hduVector3Dd& force)
+{
+    make_current();
+
+    hdSetDoublev(HD_CURRENT_FORCE, force);
+    
+    error_check();
 }
 
 std::array<bool, 4> Device::buttons_current() const

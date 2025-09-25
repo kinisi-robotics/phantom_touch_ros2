@@ -34,6 +34,7 @@
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
+#include "geometry_msgs/msg/vector3.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "phantom_touch_msgs/msg/button_event.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -42,6 +43,8 @@
 #include <range/v3/view/zip.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <mutex>
+#include <HDU/hduVector.h>
 
 namespace phantom_touch_control {
 
@@ -160,6 +163,8 @@ public:
         , device_(device_name)
         , filter_(scheduler_rate_hz)
         , dt_(1.0 / scheduler_rate_hz)
+        , force_(0.0, 0.0, 0.0)
+        , received_force_command_(false)
     {
         // Prefix frame/joint names
         base_frame_name_ = prefix + "base";
@@ -175,10 +180,34 @@ public:
 
         if (publish_joint_states)
             pub_joints_ = node->create_publisher<sensor_msgs::msg::JointState>(ns + "joint_states", 1);
+
+        sub_force_ = node->create_subscription<geometry_msgs::msg::Vector3>(
+            ns + "force_command", 1, std::bind(&DeviceController::on_force_command, this, std::placeholders::_1));
+        
+    }
+
+    void on_force_command(const geometry_msgs::msg::Vector3::SharedPtr msg)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        force_ = hduVector3Dd(msg->x, msg->y, msg->z); // Scale Z force to be same as X and Y
+        received_force_command_ = true;
+    }
+
+    void update_force()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        if(received_force_command_){
+            device_.set_force(force_);
+            received_force_command_ = false;
+        }
+
     }
 
     void publish_state()
     {
+
         hd::ScopedFrame frame(device_);
         auto t_now = node_->now();
 
@@ -258,6 +287,25 @@ public:
         m_twist->header.stamp = t_now;
         m_twist->twist = twist_msg(twist);
         pub_twist_->publish(std::move(m_twist));
+    
+        auto force_enabled = hdIsEnabled(HD_FORCE_OUTPUT);
+
+        RCLCPP_DEBUG_THROTTLE(
+            node_->get_logger(), *node_->get_clock(), 5.0,
+            "Device '%s': pos = [% 0.3f, % 0.3f, % 0.3f] m, vel = [% 0.3f, % 0.3f, % 0.3f] m/s, force = [% 0.3f, % 0.3f, % 0.3f] N, calibration_ok = %s, force_output = %s",
+            device_.model_type().c_str(),
+            transform.translation().x(),
+            transform.translation().y(),
+            transform.translation().z(),
+            twist[0],
+            twist[1],
+            twist[2],
+            force_[0],
+            force_[1],
+            force_[2],
+            device_.calibration_ok() ? "true" : "false",
+            force_enabled ? "true" : "false"
+        );
 
         if (pub_joints_) {
             auto m_jnt = std::make_unique<sensor_msgs::msg::JointState>(rosidl_runtime_cpp::MessageInitialization::SKIP);
@@ -267,7 +315,9 @@ public:
             std::copy(joint_velocity.data(), std::next(joint_velocity.data(), joint_velocity.size()), std::back_inserter(m_jnt->velocity));
             pub_joints_->publish(std::move(m_jnt));
         }
-        // RCLCPP_INFO_STREAM(node_->get_logger(), "publish state");
+
+        update_force();
+
     }
 
 private:
@@ -281,6 +331,10 @@ private:
     rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr pub_twist_;
     rclcpp::Publisher<phantom_touch_msgs::msg::ButtonEvent>::SharedPtr pub_button_;
     rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr pub_joints_;
+    rclcpp::Subscription<geometry_msgs::msg::Vector3>::SharedPtr sub_force_;
+    hduVector3Dd force_;
+    std::mutex mutex_;
+    bool received_force_command_;
 };
 
 class TouchControlNode : public rclcpp::Node

@@ -33,6 +33,7 @@
 #pragma once
 
 #include <HD/hd.h>
+#include <HDU/hduVector.h>
 
 #include <Eigen/Geometry>
 
@@ -70,6 +71,7 @@ public:
 
     void make_current() const;
     void set_force_enabled(bool enable);
+    void set_force(const hduVector3Dd& force);
 
     /*!
      * \brief Get the button states of the device.
